@@ -1,0 +1,35 @@
+{
+  "name": "kibitz",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Free chess game review: Stockfish analysis, move classification, accuracy and a coach that explains every move in plain English.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "postinstall": "node scripts/copy-engine.mjs",
+    "openings": "node scripts/build-openings.mjs",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:engine": "vitest run --config vitest.engine.config.ts"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "5.3.0",
+    "@fontsource/barlow-semi-condensed": "5.3.0",
+    "chess.js": "1.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "stockfish": "19.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "4.1.12"
+  }
+}

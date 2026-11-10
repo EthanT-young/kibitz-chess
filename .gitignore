@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Copied from node_modules/stockfish by `npm install` (scripts/copy-engine.mjs)
+public/engine/
+
+# Your own games for calibration runs (tests/engine/calibrate.test.ts)
+tests/fixtures/local/
+
+# Never commit local env files (Vite inlines VITE_* variables into the bundle)
+.env*
+*.local
+coverage/
