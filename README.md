@@ -3,21 +3,23 @@
 A full game review that runs entirely in the browser: Stockfish 19 analyses every
 position, each move gets a verdict (Brilliant, Great, Best, Excellent, Good, Book,
 Inaccuracy, Mistake, Miss, Blunder), and a coach explains in plain English *why*
-a move was good or bad. No account, no server, nothing to pay for.
+a move was good or bad. It's free, needs no account, and the analysis runs on
+your own computer.
 
-- **Import games** from Chess.com or Lichess by username, paste a PGN or a plain
+- Import games from Chess.com or Lichess by username, paste a PGN or a plain
   move list, or open a Lichess game link.
-- **Summary report**: accuracy for both players, move-quality counts, an
+- A summary report with accuracy for both players, move-quality counts, an
   estimated game rating, opening / middlegame / endgame grades, and an
   evaluation graph.
-- **Move-by-move review**: eval bar, best-move and threat arrows, the verdict
+- A move-by-move review with an eval bar, best-move and threat arrows, the verdict
   badge on the board, and the coach's explanation, e.g.
   *"This allows Qg5, attacking the knight on e5 and the pawn on g2. The best move
   was Nxd4, which trades knights."*
-- **Retry your mistakes**: the board rewinds and the coach checks your new try.
-- **Explore**: drag pieces to try your own lines with live engine analysis.
-- **Export** an annotated PGN with evaluations, symbols and the coach's notes.
-- Recent reviews are kept in your browser; board themes, piece sets, sounds.
+- Retry your mistakes: the board rewinds and the coach checks your new try.
+- Explore mode: drag pieces to try your own lines with live engine analysis.
+- Export an annotated PGN with evaluations, symbols and the coach's notes.
+- Recent reviews stay in your browser, and you can pick board themes, piece
+  sets and sounds.
 
 ## Run it locally
 
@@ -65,10 +67,37 @@ kibitz.example.com {
 Deploy by building locally and copying `dist/` over, e.g.
 `npm run build && rsync -a --delete dist/ server:/var/www/kibitz/`.
 
-**Server load is tiny.** Stockfish runs in each visitor's browser, so the
-server only hands out static files: about 1.6 MB compressed on a first visit (mostly the
-engine) and almost nothing on repeat visits.
+Server load is tiny. Stockfish runs in each visitor's browser, so the server
+only hands out static files: about 1.6 MB compressed on a first visit (mostly
+the engine) and almost nothing on repeat visits.
 A small 2-CPU VM can serve far more visitors than it will ever see.
+
+### With Docker
+
+The `Dockerfile` builds the site with Node and serves `dist/` with Caddy on
+port 8080, sending the same security and cache headers as the example above.
+`docker-compose.yml` runs the container as an unprivileged user with a
+read-only filesystem, no Linux capabilities and small CPU and memory limits.
+It creates an internal Docker network, `kibitz-internal`, with no route to
+the internet or the host. Your front proxy joins that network to reach it:
+
+```bash
+docker compose up -d --build
+docker network connect kibitz-internal <your-proxy-container>
+```
+
+(Or list `kibitz-internal` as an external network in the proxy's compose file.)
+
+The front proxy handles HTTPS and forwards to `kibitz:8080`. Kibitz can live
+under a sub-path as long as the proxy strips the prefix and redirects the bare
+path to the version with a trailing slash. With Caddy:
+
+```caddy
+redir /kibitz /kibitz/ 308
+handle_path /kibitz/* {
+    reverse_proxy kibitz:8080
+}
+```
 
 ## How the review works
 

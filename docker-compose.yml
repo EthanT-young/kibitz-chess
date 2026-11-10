@@ -1,0 +1,34 @@
+# Kibitz on the homelab server. Caddy proxies ethantyoung.com/projects/kibitz/
+# to this container. It only serves static files: Stockfish runs in each
+# visitor's browser.
+services:
+  kibitz:
+    build: .
+    image: kibitz:latest
+    container_name: kibitz
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    cpus: 0.25
+    mem_limit: 64m
+    pids_limit: 50
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+    networks:
+      - kibitz-internal
+
+networks:
+  # Shared only with the front proxy, which joins it as an external network.
+  # "internal" means no route out to the internet or other networks, and
+  # inhibit_ipv4 leaves the host without an address on this bridge, so the
+  # container can't reach the host's ports either. It can only answer the proxy.
+  kibitz-internal:
+    name: kibitz-internal
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.inhibit_ipv4: "true"
